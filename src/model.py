@@ -37,7 +37,7 @@ class SelfAttentionHead(nn.Module):
         self.qkv_proj: nn.Module = nn.Linear(embed_size, embed_size * 3)
         self.softmax = nn.Softmax(dim=-1)
     
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         qkv = self.qkv_proj(x)
         Q, K, V = qkv.chunk(3, dim=-1)
         attention = Q @ K.transpose(-2, -1) / self.embed_size**0.5
@@ -46,11 +46,18 @@ class SelfAttentionHead(nn.Module):
         return attention
 
 class MultiHeadAttention(nn.Module):
-    def __init__(self):
+    def __init__(self, embed_size: int, num_heads: int):
         super(MultiHeadAttention, self).__init__()
+        self.embed_size = embed_size
+        self.num_heads = num_heads
+        self.heads = nn.ModuleList([SelfAttentionHead(embed_size) for _ in range(num_heads)])
+        self.linear = nn.Linear(embed_size * num_heads, embed_size)
     
-    def forward(self, x):
-        pass
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        heads = [head(x) for head in self.heads]
+        x = torch.cat(heads, dim=-1)
+        x = self.linear(x)
+        return x
 
 class ResidualBlock(nn.Module):
     def __init__(self):
