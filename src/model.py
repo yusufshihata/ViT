@@ -24,11 +24,18 @@ class PatchEmbedding(nn.Module):
         return x
 
 class FeedForward(nn.Module):
-    def __init__(self):
+    def __init__(self, embed_size: int):
         super(FeedForward, self).__init__()
+        self.embed_size = embed_size
+        self.linear1 = nn.Linear(embed_size, embed_size * 4)
+        self.gelu = nn.GELU()
+        self.linear2 = nn.Linear(embed_size * 4, embed_size)
     
-    def forward(self, x):
-        pass
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.linear1(x)
+        x = self.gelu(x)
+        x = self.linear2(x)
+        return x
 
 class SelfAttentionHead(nn.Module):
     def __init__(self, embed_size: int):
