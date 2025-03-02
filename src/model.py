@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from einops import repeat
-from typing import Tuple
+from typing import Tuple, Optional
 
 class PatchEmbedding(nn.Module):
     def __init__(self, patch_res: int, img_shape: Tuple[int, int, int], embed_size: int):
@@ -67,11 +67,23 @@ class MultiHeadAttention(nn.Module):
         return x
 
 class ResidualBlock(nn.Module):
-    def __init__(self):
+    def __init__(self, embed_size: int, module: str = "linear", num_heads: Optional[int] = None):
         super(ResidualBlock, self).__init__()
+        if module == "linear":
+            self.layers = nn.ModuleList([
+                nn.LayerNorm(embed_size),
+                FeedForward(embed_size)
+            ])
+        else:
+            self.layers = nn.ModuleList([
+                nn.LayerNorm(embed_size),
+                MultiHeadAttention(embed_size, num_heads)
+            ])
     
     def forward(self, x):
-        pass
+        out = self.layers[0](x)
+        out = self.layers[1](out)
+        return x + out
 
 class ViT(nn.Module):
     def __init__(self):
