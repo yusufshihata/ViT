@@ -80,10 +80,23 @@ class ResidualBlock(nn.Module):
                 MultiHeadAttention(embed_size, num_heads)
             ])
     
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         out = self.layers[0](x)
         out = self.layers[1](out)
         return x + out
+
+class ViTLayer(nn.Module):
+    def __init__(self, embed_size: int, num_heads: int):
+        super(ViTLayer, self)
+        self.residual_blocks = nn.ModuleList([
+            ResidualBlock(embed_size, "multihead", num_heads),
+            ResidualBlock(embed_size)
+        ])
+    
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        for block in self.residual_blocks:
+            x = block(x)
+        return x
 
 class ViT(nn.Module):
     def __init__(self):
