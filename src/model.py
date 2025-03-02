@@ -1,22 +1,24 @@
 import torch
 import torch.nn as nn
-from einops import rearrange, repeat, reduce
+from einops import repeat
 from typing import Tuple
 
 class PatchEmbedding(nn.Module):
-    def __init__(self, patch_res: int, img_shape: Tuple[int, int, int], latent_size: int):
+    def __init__(self, patch_res: int, img_shape: Tuple[int, int, int], embed_size: int):
         super(PatchEmbedding, self).__init__()
-        self.patch_res = patch_res
-        self.num_channels = img_shape[0]
-        self.patch_size = (img_shape[1] * img_shape[2]) // self.patch_res**2
-        self.flattened_size = self.patch_size * self.patch_res * self.patch_res * self.num_channels
-        self.latent_size = latent_size
+        self.patch_res: int = patch_res
+        self.num_channels: int = img_shape[0]
+        self.patch_size: int = (img_shape[1] * img_shape[2]) // self.patch_res**2
+        self.embed_size: int = embed_size
 
-        self.linear_proj = nn.Linear(self.flattened_size, self.latent_size)
+        self.proj: nn.Module = nn.Conv2d(in_channels=self.num_channels, out_channels=self.embed_size, kernel_size=self.patch_res, stride=self.patch_res)
+        self.positional_embedding: nn.Parameter = nn.Parameter(torch.randn(1, self.patch_size + 1, self.embed_size))
+        self.cls_token: nn.Parameter = nn.Parameter(torch.randn(1, 1, self.embed_size))
     
-    def forward(self, img: torch.Tensor) -> torch.Tensor:
-        img = img.view(self.patch_size, self.patch_res, self.patch_res, self.num_channels)
-        img = rearrange(img, 'n h w c -> n (h w) c')
-        img = img.flatten()
-        img = self.linear_proj(img)
-        return img
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        B = x.shape[0]
+        x = self.proj(x).flatten(2).transpose(1, 2)
+        cls_tokens = repeat(self.cls_token, '() n e -> b n e', b=B)
+        x = torch.cat([cls_tokens, x], dim=1)
+        x = x + self.positional_embedding
+        return x
