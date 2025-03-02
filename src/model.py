@@ -33,10 +33,17 @@ class FeedForward(nn.Module):
 class SelfAttentionHead(nn.Module):
     def __init__(self, embed_size: int):
         super(SelfAttentionHead, self).__init__()
-        self.qkv_proj = nn.Linear(embed_size, embed_size * 3)
+        self.embed_size: int = embed_size
+        self.qkv_proj: nn.Module = nn.Linear(embed_size, embed_size * 3)
+        self.softmax = nn.Softmax(dim=-1)
     
     def forward(self, x):
-        Q, K, V = self.qkv_proj(x)
+        qkv = self.qkv_proj(x)
+        Q, K, V = qkv.chunk(3, dim=-1)
+        attention = Q @ K.transpose(-2, -1) / self.embed_size**0.5
+        attention = self.softmax(attention)
+        attention = attention @ V
+        return attention
 
 class MultiHeadAttention(nn.Module):
     def __init__(self):
