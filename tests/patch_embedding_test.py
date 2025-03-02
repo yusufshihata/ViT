@@ -1,0 +1,16 @@
+import unittest
+import torch
+from src.model import PatchEmbedding
+
+class PatchEmbeddingTest(unittest.TestCase):
+    def test_forward(self):
+        patch_res = 16
+        img_shape = (3, 224, 224)
+        latent_size = 512
+        img = torch.randn(1, *img_shape)
+        patch_embedding = PatchEmbedding(patch_res, img_shape, latent_size)
+        output = patch_embedding(img)
+        self.assertEqual(output.shape, torch.Size([latent_size]))
+
+if __name__ == "__main__":
+    unittest.main()
