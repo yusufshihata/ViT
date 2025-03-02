@@ -6,14 +6,14 @@ from typing import Tuple, Optional
 class PatchEmbedding(nn.Module):
     def __init__(self, patch_res: int, img_shape: Tuple[int, int, int], embed_size: int):
         super(PatchEmbedding, self).__init__()
-        self.patch_res: int = patch_res
-        self.num_channels: int = img_shape[0]
-        self.patch_size: int = (img_shape[1] * img_shape[2]) // self.patch_res**2
-        self.embed_size: int = embed_size
+        self.patch_res = patch_res
+        self.num_channels = img_shape[0]
+        self.patch_size = (img_shape[1] * img_shape[2]) // self.patch_res**2
+        self.embed_size = embed_size
 
-        self.proj: nn.Module = nn.Conv2d(in_channels=self.num_channels, out_channels=self.embed_size, kernel_size=self.patch_res, stride=self.patch_res)
-        self.positional_embedding: nn.Parameter = nn.Parameter(torch.randn(1, self.patch_size + 1, self.embed_size))
-        self.cls_token: nn.Parameter = nn.Parameter(torch.randn(1, 1, self.embed_size))
+        self.proj = nn.Conv2d(in_channels=self.num_channels, out_channels=self.embed_size, kernel_size=self.patch_res, stride=self.patch_res)
+        self.positional_embedding = nn.Parameter(torch.randn(1, self.patch_size + 1, self.embed_size))
+        self.cls_token = nn.Parameter(torch.randn(1, 1, self.embed_size))
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         B = x.shape[0]
@@ -87,7 +87,7 @@ class ResidualBlock(nn.Module):
 
 class ViTLayer(nn.Module):
     def __init__(self, embed_size: int, num_heads: int):
-        super(ViTLayer, self)
+        super(ViTLayer, self).__init__()
         self.residual_blocks = nn.ModuleList([
             ResidualBlock(embed_size, "multihead", num_heads),
             ResidualBlock(embed_size)
@@ -99,8 +99,13 @@ class ViTLayer(nn.Module):
         return x
 
 class ViT(nn.Module):
-    def __init__(self):
+    def __init__(self, embed_size: int, num_heads: int, num_layers: int, patch_res: int, img_shape: Tuple[int, int, int]):
         super(ViT, self).__init__()
+        self.embedding = PatchEmbedding(patch_res, img_shape, embed_size)
+        self.layers = nn.ModuleList([ViTLayer(embed_size, num_heads) for _ in range(num_layers)])
     
-    def forward(self, x):
-        pass
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.embedding(x)
+        for layer in self.layers:
+            x = layer(x)
+        return x
