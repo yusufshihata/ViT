@@ -2,8 +2,8 @@ import unittest
 import torch
 from src.model import PatchEmbedding
 
-class PatchEmbeddingTest(unittest.TestCase):
-    def test_forward(self):
+class ModelsTest(unittest.TestCase):
+    def test_patch_embedding_forward(self):
         batch_size = 10
         patch_res = 16
         img_shape = (3, 224, 224)
