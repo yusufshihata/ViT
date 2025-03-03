@@ -138,11 +138,25 @@ class ViT(nn.Module):
         return x[:, 0]
 
 class ViTClassifier(nn.Module):
-    def __init__(self, vit_model: ViT, embed_dim: int, num_classes: int = 10):
-        super().__init__()
-        self.vit = vit_model
+    def __init__(
+        self, 
+        img_shape: Tuple[int, int, int], 
+        patch_size: int, 
+        embed_dim: int, 
+        num_heads: int, 
+        num_layers: int,
+        num_classes: int,
+        mlp_ratio: float = 4.0,
+        dropout: float = 0.0
+    ):
+        super(ViTClassifier, self).__init__()
+        self.vit = ViT(img_shape, patch_size, embed_dim, num_heads, num_layers, mlp_ratio, dropout)
         self.classifier = nn.Linear(embed_dim, num_classes)
 
-    def forward(self, x):
-        embed_vector = self.vit(x)
-        return self.classifier(embed_vector)
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # Get the [CLS] token embedding
+        cls_token = self.vit(x)
+        
+        # Classify
+        return self.classifier(cls_token)
+
