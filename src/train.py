@@ -6,11 +6,12 @@ from tqdm import tqdm
 def train(model: nn.Module, optimizer: optim.Optimizer, criterion: nn.Module, trainloader: torch.utils.data.DataLoader, epochs: int):
     model.train()
     loop = tqdm(enumerate(trainloader), total=len(trainloader), leave=False)
-    for i, (imgs, targets) in loop:
-        optimizer.zero_grad()
-        y_pred = model(imgs)
-        loss = criterion(y_pred, targets)
-        loss.backward()
-        optimizer.step()
-        loop.set_description(f"Epoch [{i}/{epochs}]")
-        loop.set_postfix(loss=loss.item())
+    for epoch in range(epochs):
+        for i, (imgs, targets) in loop:
+            optimizer.zero_grad()
+            y_pred = model(imgs)
+            loss = criterion(y_pred, targets)
+            loss.backward()
+            optimizer.step()
+            loop.set_description(f"Epoch [{epochs}/{epochs}]")
+            loop.set_postfix(loss=loss.item())
