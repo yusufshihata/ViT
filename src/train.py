@@ -13,5 +13,5 @@ def train(model: nn.Module, optimizer: optim.Optimizer, criterion: nn.Module, tr
             loss = criterion(y_pred, targets)
             loss.backward()
             optimizer.step()
-            loop.set_description(f"Epoch [{epochs}/{epochs}]")
+            loop.set_description(f"Epoch [{epoch}/{epochs}]")
             loop.set_postfix(loss=loss.item())
