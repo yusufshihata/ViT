@@ -108,7 +108,7 @@ class ViT(nn.Module):
         x = self.embedding(x)
         for layer in self.layers:
             x = layer(x)
-        return x
+        return x[:, 0]
 
 class ViTClassifier(nn.Module):
     def __init__(self, vit_model: ViT, embed_dim: int, num_classes: int = 10):
@@ -117,5 +117,5 @@ class ViTClassifier(nn.Module):
         self.classifier = nn.Linear(embed_dim, num_classes)
 
     def forward(self, x):
-        embed_vector = self.vit(x)[:, -1, :].squeeze(1)
+        embed_vector = self.vit(x)[:, 0, :].squeeze(1)
         return self.classifier(embed_vector)
