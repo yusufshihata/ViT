@@ -154,9 +154,7 @@ class ViTClassifier(nn.Module):
         self.classifier = nn.Linear(embed_dim, num_classes)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # Get the [CLS] token embedding
         cls_token = self.vit(x)
         
-        # Classify
         return self.classifier(cls_token)
 
