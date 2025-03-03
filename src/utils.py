@@ -1,8 +1,5 @@
 import torch
 
-def calc_acc(num_pred: int, num_true: int) -> float:
-    return num_pred / num_true
-
 def save_checkpoint(model: torch.nn.Module, optimizer: torch.optim.Optimizer, path: str):
     checkpoint = {
         "model": model.state_dict(),
