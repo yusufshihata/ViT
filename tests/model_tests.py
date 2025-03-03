@@ -65,7 +65,7 @@ class ModelsTest(unittest.TestCase):
         img = torch.randn(batch_size, *img_shape)
         vit = ViT(latent_size, 3, 3, patch_res, img_shape)
         output = vit(img)
-        self.assertEqual(output.shape, torch.Size([batch_size, patch_size, latent_size]))
+        self.assertEqual(output.shape, torch.Size([batch_size, latent_size]))
     
     def test_vit_classifier_forward(self):
         batch_size = 10
@@ -76,7 +76,7 @@ class ModelsTest(unittest.TestCase):
         img = torch.randn(batch_size, *img_shape)
         vit = ViT(latent_size, 3, 3, patch_res, img_shape)
         output = vit(img)
-        self.assertEqual(output.shape, torch.Size([batch_size, patch_size, latent_size]))
+        self.assertEqual(output.shape, torch.Size([batch_size, latent_size]))
         vit_classifier = ViTClassifier(vit, latent_size)
         output = vit_classifier(img)
         self.assertEqual(output.shape, torch.Size([batch_size, 10]))

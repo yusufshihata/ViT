@@ -117,5 +117,5 @@ class ViTClassifier(nn.Module):
         self.classifier = nn.Linear(embed_dim, num_classes)
 
     def forward(self, x):
-        embed_vector = self.vit(x)[:, 0, :].squeeze(1)
+        embed_vector = self.vit(x)
         return self.classifier(embed_vector)
