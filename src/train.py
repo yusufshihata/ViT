@@ -23,4 +23,4 @@ def train(model: nn.Module, optimizer: optim.Optimizer, criterion: nn.Module, tr
             acc = calc_acc(total, correct)
 
             loop.set_description(f"Epoch {epoch+1}/{epochs}")
-            loop.set_postfix(loss=loss.item(), acc=acc)
+            loop.set_postfix(loss=loss.item(), acc=acc*100)
